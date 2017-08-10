@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ faq.question }}</title>
+    <style>
+        body {
+            padding: 10px; margin: 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        img {
+            max-width: 100%; height: auto;
+        }
+        p {
+            margin: 0 0 15px 0;
+        }
+    </style>
+</head>
+<body>
+{{ faq.answer|safe }}
+</body>
+</html>

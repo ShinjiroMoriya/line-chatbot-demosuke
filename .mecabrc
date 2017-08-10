@@ -1,0 +1,2 @@
+dicdir = /app/.linuxbrew/lib/mecab/dic/ipadic
+userdic = /app/original.dic
