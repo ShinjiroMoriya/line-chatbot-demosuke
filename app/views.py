@@ -1,4 +1,5 @@
 import sys
+import unicodedata
 from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -74,6 +75,14 @@ class CallbackView(View):
         return words
 
     @staticmethod
+    def is_japanese(string):
+        for ch in string:
+            n = unicodedata.name(ch)
+            if 'CJK UNIFIED' in n or 'HIRAGANA' in n or 'KATAKANA' in n:
+                return True
+        return False
+
+    @staticmethod
     def events_parse(request):
         return parser.parse(
             request.body.decode('utf-8'),
@@ -103,6 +112,9 @@ class CallbackView(View):
 
     @staticmethod
     def analysis_word(message, words):
+        if len(words) == 0:
+            return None
+
         t_queries = [Q(question__contains=t) for t in words]
         t_query = t_queries.pop()
         for item in t_queries:
@@ -236,6 +248,15 @@ class CallbackView(View):
                     event.reply_token,
                     TextSendMessage(
                         text=message + ' ご用件をどうぞ'
+                    )
+                )
+                return HttpResponse()
+
+            if self.is_japanese(message) is False:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(
+                        text='日本語でお願いします。'
                     )
                 )
                 return HttpResponse()
