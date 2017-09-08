@@ -31,7 +31,24 @@ LINE_ACCESS_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
 LINE_ACCESS_SECRET = os.environ.get('LINE_ACCESS_SECRET')
 LINE_LOGIN_CLIENT_ID = os.environ.get('LINE_LOGIN_CLIENT_ID')
 LINE_LOGIN_SECRET_ID = os.environ.get('LINE_LOGIN_SECRET_ID')
+LINE_LOGIN_URL = os.environ.get('LINE_LOGIN_URL', '')
 URL = os.environ.get('URL', 'localhost:8000')
+EINSTEIN_VISION_URL = os.environ.get('EINSTEIN_VISION_URL')
+EINSTEIN_VISION_ACCOUNT_ID = os.environ.get('EINSTEIN_VISION_ACCOUNT_ID')
+EINSTEIN_VISION_API_VERSION = os.environ.get('EINSTEIN_VISION_API_VERSION')
+EINSTEIN_VISION_MODELID = os.environ.get('EINSTEIN_VISION_MODELID')
+
+if not os.environ.get('EINSTEIN_VISION_PRIVATE_KEY'):
+    try:
+        with open(BASE_DIR + '/einstein_private.key', 'r') as pf:
+            private_key = pf.read()
+    except:
+        private_key = None
+else:
+    private_key = os.environ.get('EINSTEIN_VISION_PRIVATE_KEY')
+
+EINSTEIN_VISION_PRIVATE_KEY = private_key
+
 
 if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
@@ -132,6 +149,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+UPLOADE_DIR = os.path.join(BASE_DIR, 'static/tmp')
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_COOKIE_AGE = timedelta(days=30).total_seconds()
