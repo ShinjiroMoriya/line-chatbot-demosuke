@@ -5,7 +5,6 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from django.conf import settings as st
 from datetime import datetime, timedelta
-from base64 import b64encode
 from clint.textui.progress import Bar as ProgressBar
 from line.service import json_loads
 
@@ -27,6 +26,11 @@ class EinsteinVisionApi(object):
         }
         self.assertion = jwt.encode(payload, self.private_key,
                                     algorithm='RS256')
+
+        self.headers = {
+            'Authorization': 'Bearer ' + self.get_access_token(),
+            'Cache-Control': 'no-cache',
+        }
 
     def get_access_token(self):
         headers = {
@@ -55,12 +59,11 @@ class EinsteinVisionApi(object):
         encoder = MultipartEncoder(fields)
         callback = self.create_callback(encoder.len)
         monitor = MultipartEncoderMonitor(encoder, callback)
-        headers = {
+        self.headers.update({
             'Content-Type': monitor.content_type,
-            'Authorization': 'Bearer ' + self.get_access_token(),
-            'Cache-Control': 'no-cache',
-        }
-        r = requests.post(url=self.url + req_url, data=monitor, headers=headers)
+        })
+        r = requests.post(url=self.url + req_url,
+                          headers=self.headers, data=monitor)
         result = json_loads(r.content)
         if r.status_code != 200:
             return result.get('message')
@@ -68,11 +71,7 @@ class EinsteinVisionApi(object):
         return result
 
     def get_requests(self, req_url):
-        headers = {
-            'Authorization': 'Bearer ' + self.get_access_token(),
-            'Cache-Control': 'no-cache',
-        }
-        r = requests.get(url=self.url + req_url, headers=headers)
+        r = requests.get(url=self.url + req_url, headers=self.headers)
         result = json_loads(r.content)
         if r.status_code != 200:
             return result.get('message')
@@ -82,12 +81,11 @@ class EinsteinVisionApi(object):
     def post_requests(self, req_url, fields):
         multipart = MultipartEncoder(fields)
         data = multipart.to_string()
-        headers = {
+        self.headers.update({
             'Content-Type': multipart.content_type,
-            'Authorization': 'Bearer ' + self.get_access_token(),
-            'Cache-Control': 'no-cache',
-        }
-        r = requests.post(url=self.url + req_url, headers=headers, data=data)
+        })
+        r = requests.post(url=self.url + req_url,
+                          headers=self.headers, data=data)
         result = json_loads(r.content)
         if r.status_code != 200:
             return result.get('message')
@@ -97,12 +95,11 @@ class EinsteinVisionApi(object):
     def put_requests(self, req_url, fields):
         multipart = MultipartEncoder(fields)
         data = multipart.to_string()
-        headers = {
+        self.headers.update({
             'Content-Type': multipart.content_type,
-            'Authorization': 'Bearer ' + self.get_access_token(),
-            'Cache-Control': 'no-cache',
-        }
-        r = requests.put(url=self.url + req_url, headers=headers, data=data)
+        })
+        r = requests.put(url=self.url + req_url,
+                         headers=self.headers, data=data)
         result = json_loads(r.content)
         if r.status_code != 200:
             return result.get('message')
@@ -110,18 +107,15 @@ class EinsteinVisionApi(object):
         return result
 
     def delete_requests(self, req_url):
-        headers = {
-            'Authorization': 'Bearer ' + self.get_access_token(),
-            'Cache-Control': 'no-cache',
-        }
-        r = requests.delete(url=self.url + req_url, headers=headers)
-        if r.status_code != 200:
+        r = requests.delete(url=self.url + req_url, headers=self.headers)
+        if r.status_code != 204:
             return 'Not delete'
         return 'Deleted'
 
 
 class Datasets(EinsteinVisionApi):
     def upload(self, path, name):
+        """Create a Dataset From a Zip File Asynchronously"""
         if not os.path.isfile(path):
             return None
         req_url = '/vision/datasets/upload/sync'
@@ -133,6 +127,7 @@ class Datasets(EinsteinVisionApi):
         return self.post_proggress(req_url, fields)
 
     def put(self, datasets_id, path):
+        """Adds to Dataset From a Zip File"""
         if not os.path.isfile(path):
             return None
         req_url = '/vision/datasets/' + datasets_id + '/upload'
@@ -142,18 +137,22 @@ class Datasets(EinsteinVisionApi):
         return self.put_requests(req_url, fields)
 
     def delete(self, datasets_id):
+        """Dataset Delete"""
         req_url = '/vision/datasets/' + str(datasets_id)
         return self.delete_requests(req_url)
 
     def all(self):
+        """Dataset Get All"""
         req_url = '/vision/datasets'
         return self.get_requests(req_url)
 
     def confirm(self, datasets_id):
+        """A Dataset Confirm"""
         req_url = '/vision/datasets/' + str(datasets_id)
         return self.get_requests(req_url)
 
     def feedback(self, path, label, model_id):
+        """Create a Feedback"""
         if not os.path.isfile(path):
             return None
         req_url = '/vision/feedback'
@@ -166,21 +165,24 @@ class Datasets(EinsteinVisionApi):
         return self.post_requests(req_url, fields)
 
     def get_feedback(self, datasets_id):
-        req_url = ('/vision/datasets/' + datasets_id +
+        """Get All Examples"""
+        req_url = ('/vision/datasets/' + str(datasets_id) +
                    '/examples?source=feedback')
         return self.get_requests(req_url)
 
 
 class Train(EinsteinVisionApi):
-    def create(self, datasets_id, model_name):
+    def create(self, datasets_id, name):
+        """Train a Dataset"""
         req_url = '/vision/train'
         fields = {
-            'name': model_name,
+            'name': name,
             'datasetId': datasets_id,
         }
         return self.post_requests(req_url, fields)
 
     def retrain(self, model_id):
+        """Retrains a Dataset and updates a model"""
         req_url = '/vision/retrain'
         fields = {
             'modelId': model_id,
@@ -188,23 +190,26 @@ class Train(EinsteinVisionApi):
         return self.post_requests(req_url, fields)
 
     def confirm(self, model_id):
+        """Get Training Status"""
         req_url = '/vision/train/' + str(model_id)
         return self.get_requests(req_url)
 
 
 class Models(EinsteinVisionApi):
     def get(self, model_id):
+        """Get Image Model Metrics"""
         req_url = '/vision/models/' + model_id
         return self.get_requests(req_url)
 
     def lc(self, model_id):
+        """Get Image Model Learning Curve"""
         req_url = '/vision/models/' + model_id + '/lc'
         return self.get_requests(req_url)
 
 
 class Predict(EinsteinVisionApi):
-    def get(self, image):
-        image = b64encode(image)
+    def base64(self, image):
+        """Prediction with Image Base64 String"""
         req_url = '/vision/predict'
         fields = {
             'modelId': st.EINSTEIN_VISION_MODELID,
@@ -213,6 +218,7 @@ class Predict(EinsteinVisionApi):
         return self.post_requests(req_url, fields)
 
     def file(self, path):
+        """Prediction with Image File"""
         if not os.path.isfile(path):
             return None
         req_url = '/vision/predict'

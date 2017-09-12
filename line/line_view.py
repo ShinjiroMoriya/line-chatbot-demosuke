@@ -221,7 +221,7 @@ class LineCallbackView(View):
             )
 
     @staticmethod
-    def get_message_reply_by_predict_label(result_lists):
+    def get_predict_result(result_lists):
         result_list = result_lists[0]
         probability = result_list.get('probability', '')
         if result_list.get('probability') > 0.8:

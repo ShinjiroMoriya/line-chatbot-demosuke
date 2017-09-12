@@ -13,5 +13,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         path = options.get('path')
-        result = self.predict.file(path)
-        print(json_dumps(result))
+        try:
+            result = self.predict.file(path)
+            print(json_dumps(result))
+        except:
+            pass

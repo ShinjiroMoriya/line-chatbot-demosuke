@@ -1,4 +1,5 @@
 import sys
+from base64 import b64encode
 from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -100,34 +101,36 @@ class CallbackView(LineCallbackView):
                         )
 
                 if event.message.type == 'image':
-                    message_content = line_bot_api.get_message_content(
-                        event.message.id)
-
-                    try:
-                        SfContact.image_upload_by_line_id(
-                            line_id, message_content.content, event.message.id)
-                        result = self.predict.get(message_content.content)
-                        reply_text = self.get_message_reply_by_predict_label(
-                            result.get('probabilities'))
-
-                        line_bot_api.reply_message(
-                            event.reply_token,
-                            TextSendMessage(
-                                text=reply_text
+                    if session.get('responder') != 'LIVEAGENT':
+                        message_content = line_bot_api.get_message_content(
+                            event.message.id)
+                        try:
+                            SfContact.image_upload_by_line_id(
+                                line_id,
+                                message_content.content,
+                                event.message.id)
+                            result = self.predict.base64(
+                                b64encode(message_content.content))
+                            reply_text = self.get_predict_result(
+                                result.get('probabilities'))
+                            line_bot_api.reply_message(
+                                event.reply_token,
+                                TextSendMessage(
+                                    text=reply_text
+                                )
                             )
-                        )
 
-                    except CountException as ex:
-                        line_bot_api.reply_message(
-                            event.reply_token,
-                            TextSendMessage(
-                                text=str(ex)
+                        except CountException as ex:
+                            line_bot_api.reply_message(
+                                event.reply_token,
+                                TextSendMessage(
+                                    text=str(ex)
+                                )
                             )
-                        )
-                        return HttpResponse()
+                            return HttpResponse()
 
-                    except:
-                        return HttpResponse()
+                        except:
+                            return HttpResponse()
 
         return HttpResponse()
 

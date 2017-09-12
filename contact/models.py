@@ -43,9 +43,6 @@ class SfContact(models.Model):
         data_obj = cls.objects.filter(line_id=line_id)
         data = data_obj.values().first()
 
-        if data.get('image_transmission_count') >= 3:
-            raise CountException('画像の送信は3回までです。')
-
         image_upload(file, message_id)
 
         cloudinary_path = ('https://res.cloudinary.com/' +
