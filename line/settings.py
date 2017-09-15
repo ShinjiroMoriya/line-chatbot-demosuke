@@ -18,25 +18,27 @@ TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = False
-LIVEAGENT_API_URL = os.environ.get('LIVEAGENT_API_URL')
 ROOT_URLCONF = 'line.urls'
 WSGI_APPLICATION = 'line.wsgi.application'
-API_VERSION = str(os.environ.get('API_VERSION', 40))
+API_VERSION = '40'
 LIVEAGENT_HOST = os.environ.get('LIVEAGENT_HOST')
 LIVEAGENT_ORGANIZATION_ID = os.environ.get('LIVEAGENT_ORGANIZATION_ID')
 LIVEAGENT_DEPLOYMENT_ID = os.environ.get('LIVEAGENT_DEPLOYMENT_ID')
 LIVEAGENT_BUTTON_ID = os.environ.get('LIVEAGENT_BUTTON_ID')
 USER_AGENT = os.environ.get('USER_AGENT', 'Mozilla/5.0')
-LINE_ACCESS_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
-LINE_ACCESS_SECRET = os.environ.get('LINE_ACCESS_SECRET')
-LINE_LOGIN_CLIENT_ID = os.environ.get('LINE_LOGIN_CLIENT_ID')
-LINE_LOGIN_SECRET_ID = os.environ.get('LINE_LOGIN_SECRET_ID')
-LINE_LOGIN_URL = os.environ.get('LINE_LOGIN_URL', '')
-URL = os.environ.get('URL', 'localhost:8000')
+URL = os.environ.get('URL', 'http://localhost:8000')
 EINSTEIN_VISION_URL = os.environ.get('EINSTEIN_VISION_URL')
 EINSTEIN_VISION_ACCOUNT_ID = os.environ.get('EINSTEIN_VISION_ACCOUNT_ID')
 EINSTEIN_VISION_API_VERSION = os.environ.get('EINSTEIN_VISION_API_VERSION')
 EINSTEIN_VISION_MODELID = os.environ.get('EINSTEIN_VISION_MODELID')
+LINE_ACCESS_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
+LINE_ACCESS_SECRET = os.environ.get('LINE_ACCESS_SECRET')
+LINE_LOGIN_CLIENT_ID = os.environ.get('LINE_LOGIN_CLIENT_ID')
+LINE_LOGIN_SECRET_ID = os.environ.get('LINE_LOGIN_SECRET_ID')
+LINE_LOGIN_URL = ('https://access.line.me/dialog/oauth/weblogin?'
+                  'response_type=code&client_id={line_client_id}&'
+                  'redirect_uri={callback_url}&state=register')
+
 
 if not os.environ.get('EINSTEIN_VISION_PRIVATE_KEY'):
     try:
@@ -149,7 +151,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-UPLOADE_DIR = os.path.join(BASE_DIR, 'static/tmp')
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 

@@ -120,15 +120,6 @@ class CallbackView(LineCallbackView):
                                 )
                             )
 
-                        except CountException as ex:
-                            line_bot_api.reply_message(
-                                event.reply_token,
-                                TextSendMessage(
-                                    text=str(ex)
-                                )
-                            )
-                            return HttpResponse()
-
                         except:
                             return HttpResponse()
 

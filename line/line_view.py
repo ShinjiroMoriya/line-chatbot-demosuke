@@ -154,10 +154,6 @@ class LineCallbackView(View):
         )
 
     def get_message_reply(self, line_id, message):
-        if message == '画像リセット':
-            SfContact.image_reset_by_line_id(line_id)
-            return 'リセットしました。'
-
         if self.get_parts_of_speech(message) == '感動詞':
             return message + '\nご用件をどうぞ'
 

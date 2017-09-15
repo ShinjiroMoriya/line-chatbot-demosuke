@@ -19,9 +19,6 @@ class SfContact(models.Model):
     image_path = models.CharField(
         max_length=255, null=True, blank=True,
         db_column='image_path__c')
-    image_transmission_count = models.IntegerField(
-        null=True, blank=True,
-        db_column='image_transmission_count__c')
 
     def __str__(self):
         return self.email
@@ -53,23 +50,9 @@ class SfContact(models.Model):
         if not file_names:
             update_file = file_name
         else:
-            update_file = file_names + ',' + file_name
+            update_file = file_names + '\n' + file_name
 
-        if not data.get('image_transmission_count'):
-            file_count = 1
-        else:
-            file_count = data.get('image_transmission_count') + 1
-
-        data_obj.update(
-            image_path=update_file,
-            image_transmission_count=file_count,
-        )
-
-    @classmethod
-    def image_reset_by_line_id(cls, line_id):
-        cls.objects.filter(line_id=line_id).update(
-            image_transmission_count=0,
-        )
+        data_obj.update(image_path=update_file)
 
 
 class CountException(Exception):
