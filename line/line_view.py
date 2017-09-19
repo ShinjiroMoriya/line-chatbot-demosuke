@@ -76,7 +76,7 @@ class LineCallbackView(View):
     @staticmethod
     def get_session(line_id):
         session = SfContact.get_by_line_id(line_id)
-        return session if session is not None else {}
+        return session if len(session) != 0 else None
 
     @staticmethod
     def no_reply(line_id, message):
