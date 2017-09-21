@@ -11,6 +11,7 @@ from contact.models import SfContact
 from difflib import SequenceMatcher
 from django.db.models import Q
 from bot.models import SfBot, SfNoBot
+from app.models import LineSession
 from urllib.parse import quote
 from linebot.models import (TextSendMessage,
                             TemplateSendMessage, ButtonsTemplate,
@@ -77,6 +78,11 @@ class LineCallbackView(View):
     def get_session(line_id):
         session = SfContact.get_by_line_id(line_id)
         return session if len(session) != 0 else None
+
+    @staticmethod
+    def get_liveagent_session(line_id):
+        session = LineSession.get_by_line(line_id)
+        return session if len(session) != 0 else {}
 
     @staticmethod
     def no_reply(line_id, message):

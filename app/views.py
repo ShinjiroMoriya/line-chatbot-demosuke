@@ -80,7 +80,9 @@ class CallbackView(LineCallbackView):
 
                     message = event.message.text
 
-                    if session.get('responder') == 'LIVEAGENT':
+                    liveagent_session = self.get_liveagent_session(line_id)
+
+                    if liveagent_session.get('responder') == 'LIVEAGENT':
                         res = send_message(line_id, message)
                         if res is False:
                             line_bot_api.reply_message(
