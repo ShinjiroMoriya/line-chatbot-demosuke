@@ -77,12 +77,12 @@ class LineCallbackView(View):
     @staticmethod
     def get_session(line_id):
         session = SfContact.get_by_line_id(line_id)
-        return session if len(session) != 0 else None
+        return session if session is not None else None
 
     @staticmethod
     def get_liveagent_session(line_id):
         session = LineSession.get_by_line(line_id)
-        return session if len(session) != 0 else {}
+        return session if session is not None else {}
 
     @staticmethod
     def no_reply(line_id, message):
