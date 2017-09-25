@@ -2,6 +2,8 @@ import unicodedata
 from django.views.generic import View
 from django.conf import settings as st
 from django.utils.html import strip_tags
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from line.utilities import line_bot_api, parser
 from line.logger import logger
 from line.salesforce import ContactApi, FaqApi
@@ -19,10 +21,9 @@ from linebot.models import (TextSendMessage,
 
 
 class LineCallbackView(View):
-    def __init__(self, **kwargs):
-        self.faq = FaqApi()
-        self.contact = ContactApi()
-        super().__init__(**kwargs)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     @staticmethod
     def get_parts_of_speech(text):
@@ -176,7 +177,8 @@ class LineCallbackView(View):
             return 'よくわかりません。'
 
         if bot_data.access_point == 'ナレッジ':
-            faq_data = self.faq.get_faq(question=bot_data.references)
+            faq = FaqApi()
+            faq_data = faq.get_faq(question=bot_data.references)
             if faq_data is None:
                 return 'お答えすることができませんでした。'
 
@@ -189,7 +191,8 @@ class LineCallbackView(View):
                 return 'お答えすることができませんでした。'
 
         if bot_data.access_point == '顧客':
-            sf_data = self.contact.get_query_by_line_id(
+            contact = ContactApi()
+            sf_data = contact.get_query_by_line_id(
                 query=bot_data.references,
                 line_id=line_id)
             res_data = sf_data.get(bot_data.references)

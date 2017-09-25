@@ -4,8 +4,6 @@ from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from line.utilities import line_bot_api
 from line.logger import logger
 from line.line_api import get_line_id
@@ -20,10 +18,6 @@ from linebot.models import (MessageEvent, TextSendMessage, FollowEvent,
 
 
 class CallbackView(LineCallbackView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     @staticmethod
     def get(_):
         return HttpResponse()
