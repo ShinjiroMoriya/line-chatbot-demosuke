@@ -5,7 +5,6 @@ from django.utils.html import strip_tags
 from line.utilities import line_bot_api, parser
 from line.logger import logger
 from line.salesforce import ContactApi, FaqApi
-from line.einstein_vision import Predict
 from natto import MeCab
 from contact.models import SfContact
 from difflib import SequenceMatcher
@@ -21,7 +20,6 @@ from linebot.models import (TextSendMessage,
 
 class LineCallbackView(View):
     def __init__(self, **kwargs):
-        self.predict = Predict()
         self.faq = FaqApi()
         self.contact = ContactApi()
         super().__init__(**kwargs)

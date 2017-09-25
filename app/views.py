@@ -12,7 +12,8 @@ from line.line_api import get_line_id
 from line.forms import RegisterForm
 from line.service import get_error_message, session_delete
 from line.liveagent import send_message, connect_liveagent, get_messages
-from contact.models import SfContact, CountException
+from line.einstein_vision import Predict
+from contact.models import SfContact
 from line.line_view import LineCallbackView
 from linebot.models import (MessageEvent, TextSendMessage, FollowEvent,
                             PostbackEvent)
@@ -111,7 +112,8 @@ class CallbackView(LineCallbackView):
                                 line_id,
                                 message_content.content,
                                 event.message.id)
-                            result = self.predict.base64(
+                            predict = Predict()
+                            result = predict.base64(
                                 b64encode(message_content.content))
                             reply_text = self.get_predict_result(
                                 result.get('probabilities'))
